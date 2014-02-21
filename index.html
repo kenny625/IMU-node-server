@@ -5,13 +5,13 @@
     <meta charset="UTF-8">
     <title>IMU</title>
     <script src="socketioJS/socket.io.min.js"></script>
-    
+
 
     <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
     <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
     <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
 
-    
+
 
 </head>
 
@@ -19,45 +19,95 @@
 
 <body>
     <div class="container">
-    <p>Yaw:</p>
-    <p id="sensorValue1" style="font-size:200%">Yaw</p>
-    <p>Pitch:</p>
-    <p id="sensorValue2" style="font-size:200%">Pitch</p>
-    <p>Roll:</p>
-    <p id="sensorValue3" style="font-size:200%">Roll</p>
+        <p></p>
+        <p>Yaw:</p>
+        <p id="sensorValue1" style="font-size:200%">Yaw</p>
+        <p>Pitch:</p>
+        <p id="sensorValue2" style="font-size:200%">Pitch</p>
+        <p>Roll:</p>
+        <p id="sensorValue3" style="font-size:200%">Roll</p>
 
-<div class="progress progress-info progress-striped">
-<div id="yawValue" class="bar" style="width: 20%"></div>
-</div>
-<div class="progress progress-success progress-striped">
-<div id="pitchValue" class="bar" style="width: 40%"></div>
-</div>
-<div class="progress progress-warning progress-striped">
-<div id="rollValue" class="bar" style="width: 60%"></div>
-</div>
+        <div class="progress progress-info progress-striped">
+            <div id="yawValue" class="bar" style="width: 20%"></div>
+        </div>
+        <div class="progress progress-success progress-striped">
+            <div id="pitchValue" class="bar" style="width: 40%"></div>
+        </div>
+        <div class="progress progress-warning progress-striped">
+            <div id="rollValue" class="bar" style="width: 60%"></div>
+        </div>
 
-    
+        <p>Key</p>
+        <select id="keySelected" class="form-control">
+            <option value="1">Q</option>
+            <option value="2">W</option>
+            <option value="3">E</option>
+            <option value="4">R</option>
+            <option value="5">T</option>
+            <option value="6">A</option>
+            <option value="7">S</option>
+            <option value="8">D</option>
+            <option value="9">F</option>
+            <option value="10">G</option>
+            <option value="11">Z</option>
+            <option value="12">X</option>
+            <option value="13">C</option>
+            <option value="14">V</option>
 
-</div>
+        </select>
+        <span>count: </span>
+        <span id="count">0</span>
+<!--        <input type="text" name="classNumber">-->
+        <br>
+        <button id="recordBtn" type="button" class="btn btn-default">Start Record</button>
+        <p id="recordStatus"></p>
 
-<script>
-    var socket = io.connect('http://localhost:8001');
+    </div>
+
+    <script>
+        var yaw, pitch, roll;
+        var socket = io.connect('http://localhost:8001');
         var JSONdata;
+        var trainingSetCount = new Array();
+        
+        resetCountArray();
+        
         socket.on('sensorValue', function(data) {
-//            console.log(data);
+            //            console.log(data);
             JSONdata = JSON.parse(data);
-            document.getElementById("sensorValue1").innerHTML = JSONdata.Yaw;
-//            console.log(JSONdata.Yaw + 180);
-            $("#yawValue").css("width", ((Number(JSONdata.Yaw) + 180) / 360) * 100 + "%");
-            document.getElementById("sensorValue2").innerHTML = JSONdata.Pitch;
-            $("#pitchValue").css("width", ((Number(JSONdata.Pitch) + 90) / 180) * 100 + "%");
-            document.getElementById("sensorValue3").innerHTML = JSONdata.Roll;
-            $("#rollValue").css("width", ((Number(JSONdata.Roll) + 180) / 360) * 100 + "%");
+            yaw = JSONdata.Yaw;
+            pitch = JSONdata.Pitch;
+            roll = JSONdata.Roll;
+            document.getElementById("sensorValue1").innerHTML = yaw;
+            $("#yawValue").css("width", ((Number(yaw) + 180) / 360) * 100 + "%");
+            document.getElementById("sensorValue2").innerHTML = pitch;
+            $("#pitchValue").css("width", ((Number(pitch) + 90) / 180) * 100 + "%");
+            document.getElementById("sensorValue3").innerHTML = roll;
+            $("#rollValue").css("width", ((Number(roll) + 180) / 360) * 100 + "%");
         });
-    
+
+        $("#recordBtn").click(function() {
+            console.log($("#keySelected option:selected").html());
+            $("#recordStatus").html($("#keySelected").val() + " 0:" + yaw + " 1:" + pitch + " 2:" + roll);
+            trainingSetCount[$("#keySelected option:selected").html()] = trainingSetCount[$("#keySelected option:selected").html()] + 1;
+            $("#count").html(trainingSetCount[$("#keySelected option:selected").html()])
+console.log(trainingSetCount);
+
+        });
+        
+        $("#keySelected").change(function(){
+            $("#count").html(trainingSetCount[$("#keySelected option:selected").html()])
+console.log(trainingSetCount);
+        });
+        
+        function resetCountArray(){
+            for(i=0;i<$("#keySelected > option").length;i++){
+            trainingSetCount[$("#keySelected" + " option:eq(" + i +")").text()] = 0;
+            }
+        }
         
     </script>
-    
+
 </body>
 
 </html>
