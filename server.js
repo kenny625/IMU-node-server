@@ -1,8 +1,9 @@
 var serial = require( "serialport" );
 var SerialPort = serial.SerialPort;
 var io = require('socket.io').listen(8001);
+io.set('log level', 1);
 var fs = require('fs');
-var filepath = '\/Volumes\/RamDisk\/test.txt';
+var filepath = '\/Volumes\/RamDisk\/';
 var sys = require('sys');
 var exec = require('child_process').exec;
 var child;
@@ -22,7 +23,17 @@ io.sockets.on('connection', function (socket) {
          socket.emit('sensorValue', data);
             
         } );
-  
+    socket
+  socket.on('filename', function (data) {
+      if(data != ""){
+        filepath = filepath + data.filename;
+          writeToFile("");
+          appendToFile("456");
+      }else{
+        console.log("no filename");
+      }
+    console.log(data);
+  });
   
 });
  
@@ -34,6 +45,9 @@ var sp = new SerialPort( portName, {
     parser  :serial.parsers.readline( "\n" )
 } );
 
+
+
+
 function writeToFile(data) {
    fs.writeFile(filepath, data, function(err) {
         if(err) {
@@ -42,3 +56,10 @@ function writeToFile(data) {
     }); 
 }
 
+function appendToFile(data) {
+   fs.appendFile(filepath, data, function(err) {
+        if(err) {
+            console.error("Could not append file: %s", err);
+        }
+    }); 
+}

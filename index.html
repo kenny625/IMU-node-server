@@ -36,7 +36,10 @@
         <div class="progress progress-warning progress-striped">
             <div id="rollValue" class="bar" style="width: 60%"></div>
         </div>
-
+        
+        <p>Training File name</p>
+        <input type="text" name="filename">
+        <button id="startBtn" type="button" class="btn btn-default">Start</button>
         <p>Key</p>
         <select id="keySelected" class="form-control">
             <option value="1">Q</option>
@@ -57,9 +60,8 @@
         </select>
         <span>count: </span>
         <span id="count">0</span>
-<!--        <input type="text" name="classNumber">-->
         <br>
-        <button id="recordBtn" type="button" class="btn btn-default">Start Record</button>
+        <button id="recordBtn" type="button" class="btn btn-default">Record</button>
         <p id="recordStatus"></p>
 
     </div>
@@ -85,12 +87,19 @@
             document.getElementById("sensorValue3").innerHTML = roll;
             $("#rollValue").css("width", ((Number(roll) + 180) / 360) * 100 + "%");
         });
-
+        
+        $("#startBtn").click(function(){
+            resetCountArray();
+            socket.emit('filename', { filename: $("input[name='filename']").val() });
+        });
+        
         $("#recordBtn").click(function() {
             console.log($("#keySelected option:selected").html());
-            $("#recordStatus").html($("#keySelected").val() + " 0:" + yaw + " 1:" + pitch + " 2:" + roll);
+            var recordString = $("#keySelected").val() + " 0:" + yaw + " 1:" + pitch + " 2:" + roll;
+            $("#recordStatus").html(recordString);
+            socket.emit('record', { record: recordString });
             trainingSetCount[$("#keySelected option:selected").html()] = trainingSetCount[$("#keySelected option:selected").html()] + 1;
-            $("#count").html(trainingSetCount[$("#keySelected option:selected").html()])
+            $("#count").html(trainingSetCount[$("#keySelected option:selected").html()]);
 console.log(trainingSetCount);
 
         });
