@@ -28,13 +28,15 @@ io.sockets.on('connection', function (socket) {
       if(data != ""){
         filepath = filepath + data.filename;
           writeToFile("");
-          appendToFile("456");
       }else{
         console.log("no filename");
       }
     console.log(data);
   });
-  
+  socket.on('record', function (data) {
+      appendToFile(data.record + "\n");
+  });
+    
 });
  
 // Replace with the device name in your machine.
