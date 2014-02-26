@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>IMU</title>
+    <script src="socketioJS/socket.io.min.js"></script>
+
+
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.css">
+    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+
+
+
+</head>
+
+
+
+<body>
+    <div class="container">
+        <p></p>
+        <p>Yaw:</p>
+        <p id="sensorValue1" style="font-size:200%">Yaw</p>
+        <p>Pitch:</p>
+        <p id="sensorValue2" style="font-size:200%">Pitch</p>
+        <p>Roll:</p>
+        <p id="sensorValue3" style="font-size:200%">Roll</p>
+
+        <div class="progress progress-info progress-striped">
+            <div id="yawValue" class="bar" style="width: 20%"></div>
+        </div>
+        <div class="progress progress-success progress-striped">
+            <div id="pitchValue" class="bar" style="width: 40%"></div>
+        </div>
+        <div class="progress progress-warning progress-striped">
+            <div id="rollValue" class="bar" style="width: 60%"></div>
+        </div>
+        
+        <p>Model Name</p>
+        <input type="text" name="modelname">
+        <button id="startBtn" type="button" class="btn btn-default">Start</button>
+        <p id="result"></p>
+        
+
+    </div>
+
+    <script>
+        var yaw1, pitch1, roll1;
+        var socket = io.connect('http://localhost:8001');
+                
+      
+        
+        socket.on('sensorValue1411', function(data) {
+            //            console.log(data);
+            var yaw, pitch, roll;
+            var JSONdata;
+            JSONdata = JSON.parse(data);
+            yaw = JSONdata.Yaw;
+            pitch = JSONdata.Pitch;
+            roll = JSONdata.Roll;
+            yaw1 = yaw;
+            pitch1 = pitch;
+            roll1 = roll;
+            
+            
+        });
+        
+        socket.on('sensorValue1421', function(data) {
+            var yaw, pitch, roll;
+            var JSONdata;
+            JSONdata = JSON.parse(data);
+            yaw = JSONdata.Yaw;
+            pitch = JSONdata.Pitch;
+            roll = JSONdata.Roll;
+            
+            document.getElementById("sensorValue1").innerHTML = Number(yaw1) - Number(yaw);
+            $("#yawValue").css("width", ((Number(yaw1) - Number(yaw) + 180) / 360) * 100 + "%");
+            document.getElementById("sensorValue2").innerHTML = Number(pitch1) - Number(pitch);
+            $("#pitchValue").css("width", ((Number(pitch1) - Number(pitch) + 90) / 180) * 100 + "%");
+            document.getElementById("sensorValue3").innerHTML = Number(roll1) - Number(roll);
+            $("#rollValue").css("width", ((Number(roll1) - Number(roll) + 180) / 360) * 100 + "%");
+            
+            var recordString = "0 0:" + (Number(yaw1) - Number(yaw)) + " 1:" + (Number(pitch1) - Number(pitch)) + " 2:" + (Number(roll1) - Number(roll));
+            socket.emit('record', { record: recordString });
+        });
+        
+        socket.on('result', function(data) {
+            $("#result").html(data.result);
+        });
+        
+        $("#startBtn").click(function(){
+            socket.emit('modelname', { modelname: $("input[name='modelname']").val() });
+        });
+        
+
+        
+    </script>
+
+</body>
+
+</html>
