@@ -9,21 +9,25 @@ var exec = require('child_process').exec;
 var child;
 
 
-child = exec("ls", function (error, stdout, stderr){
-    sys.print('stdout: ' + stdout);
-    if(error !== null) {
-        console.log('exec error: ' + error);
-    }
-});
+//child = exec("ls", function (error, stdout, stderr){
+//    sys.print('stdout: ' + stdout);
+//    if(error !== null) {
+//        console.log('exec error: ' + error);
+//    }
+//});
 
 io.sockets.on('connection', function (socket) {
 //    setInterval(function(){}, 2000);
-     sp.on( "data", function ( data ) {
+     sp1.on( "data", function ( data ) {
 //            console.log( data );
-         socket.emit('sensorValue', data);
+         socket.emit('sensorValue1411', data);
             
         } );
-    socket
+    sp2.on( "data", function ( data ) {
+//            console.log( data );
+         socket.emit('sensorValue1421', data);
+            
+        } );
   socket.on('filename', function (data) {
       if(data != ""){
         filepath = filepath + data.filename;
@@ -40,13 +44,17 @@ io.sockets.on('connection', function (socket) {
 });
  
 // Replace with the device name in your machine.
-var portName = "/dev/tty.usbmodem1411";
+var portName1 = "/dev/tty.usbmodem1411";
+var portName2 = "/dev/tty.usbmodem1421";
  
-var sp = new SerialPort( portName, {
+var sp1 = new SerialPort( portName1, {
     baudrate:57600,
     parser  :serial.parsers.readline( "\n" )
 } );
-
+var sp2 = new SerialPort( portName2, {
+    baudrate:57600,
+    parser  :serial.parsers.readline( "\n" )
+} );
 
 
 
